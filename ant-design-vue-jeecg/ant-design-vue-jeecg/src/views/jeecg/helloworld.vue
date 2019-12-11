@@ -55,6 +55,7 @@
       },
       onChange(value, selectedOptions) {
         console.log(value, selectedOptions);
+        console.log("32232");
       },
       filter(inputValue, path) {
         return (path.some(option => (option.label).toLowerCase().indexOf(inputValue.toLowerCase()) > -1));
