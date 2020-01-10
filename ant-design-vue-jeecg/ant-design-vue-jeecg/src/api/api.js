@@ -95,6 +95,9 @@ const duplicateCheck = (params)=>getAction("/sys/duplicate/check",params);
 // 加载分类字典
 const loadCategoryData = (params)=>getAction("/sys/category/loadAllData",params);
 
+//博客加载
+//所有分类
+const queryAllCategory = (params)=>getAction("/blog/bkCategory/queryAllCategory",params);
 export {
   // imgView,
   // doMian,
@@ -142,7 +145,8 @@ export {
   queryTreeListForRole,
   getSystemMenuList,
   getSystemSubmenu,
-  loadCategoryData
+  loadCategoryData,
+  queryAllCategory
 }
 
 

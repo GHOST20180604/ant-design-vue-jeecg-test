@@ -14,20 +14,21 @@
           <a-input v-decorator="[ 'name', validatorRules.name]" placeholder="请输入分类名称"></a-input>
         </a-form-item>
         <a-form-item label="分类描述" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input v-decorator="[ 'description', validatorRules.description]" placeholder="请输入分类描述"></a-input>
+          <!--<a-input v-decorator="[ 'description', validatorRules.description]" placeholder="请输入分类描述"></a-input>-->
+          <a-textarea v-decorator="['description']" rows="4" placeholder="请输入分类描述"/>
         </a-form-item>
-        <a-form-item label="创建人" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input v-decorator="[ 'createUser', validatorRules.createUser]" placeholder="请输入创建人"></a-input>
-        </a-form-item>
-        <a-form-item label="创建时间" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <j-date placeholder="请选择创建时间" v-decorator="[ 'createTime', validatorRules.createTime]" :trigger-change="true" style="width: 100%"/>
-        </a-form-item>
-        <a-form-item label="更新人" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input v-decorator="[ 'updateUser', validatorRules.updateUser]" placeholder="请输入更新人"></a-input>
-        </a-form-item>
-        <a-form-item label="更新时间" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <j-date placeholder="请选择更新时间" v-decorator="[ 'updateTime', validatorRules.updateTime]" :trigger-change="true" style="width: 100%"/>
-        </a-form-item>
+        <!--<a-form-item label="创建人" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
+          <!--<a-input v-decorator="[ 'createUser', validatorRules.createUser]" placeholder="请输入创建人"></a-input>-->
+        <!--</a-form-item>-->
+        <!--<a-form-item label="创建时间" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
+          <!--<j-date placeholder="请选择创建时间" v-decorator="[ 'createTime', validatorRules.createTime]" :trigger-change="true" style="width: 100%"/>-->
+        <!--</a-form-item>-->
+        <!--<a-form-item label="更新人" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
+          <!--<a-input v-decorator="[ 'updateUser', validatorRules.updateUser]" placeholder="请输入更新人"></a-input>-->
+        <!--</a-form-item>-->
+        <!--<a-form-item label="更新时间" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
+          <!--<j-date placeholder="请选择更新时间" v-decorator="[ 'updateTime', validatorRules.updateTime]" :trigger-change="true" style="width: 100%"/>-->
+        <!--</a-form-item>-->
 
       </a-form>
     </a-spin>
@@ -38,7 +39,8 @@
 
   import { httpAction } from '@/api/manage'
   import pick from 'lodash.pick'
-  import JDate from '@/components/jeecg/JDate'  
+  import JDate from '@/components/jeecg/JDate'
+  import {duplicateCheck } from '@/api/api'
 
   export default {
     name: "BkCategoryModal",
@@ -63,12 +65,18 @@
 
         confirmLoading: false,
         validatorRules:{
-        name:{},
-        description:{},
-        createUser:{},
-        createTime:{},
-        updateUser:{},
-        updateTime:{},
+          name:{
+            rules: [{
+              required: true, message: '请输入分类名称!'
+            },{
+              validator: this.validateName,
+            }]
+          },
+          description:{},
+          createUser:{},
+          createTime:{},
+          updateUser:{},
+          updateTime:{},
         },
         url: {
           add: "/blog/bkCategory/add",
@@ -125,6 +133,21 @@
             })
           }
          
+        })
+      },
+      validateName(rule, value, callback){
+        var params = {
+          tableName: 'bk_category',
+          fieldName: 'name',
+          fieldVal: value,
+          dataId: this.userId
+        };
+        duplicateCheck(params).then((res) => {
+          if (res.success) {
+            callback()
+          } else {
+            callback("分类名已存在!")
+          }
         })
       },
       handleCancel () {

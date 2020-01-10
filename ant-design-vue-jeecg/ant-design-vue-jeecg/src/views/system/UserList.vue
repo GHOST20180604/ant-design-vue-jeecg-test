@@ -218,6 +218,7 @@
             align: "center",
             width: 100,
             dataIndex: 'realname',
+            sorter: true
           },
           {
             title: '头像',
