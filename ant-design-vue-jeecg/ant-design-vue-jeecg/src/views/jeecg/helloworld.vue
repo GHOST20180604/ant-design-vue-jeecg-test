@@ -1,72 +1,30 @@
 <template>
-  <a-card :bordered="false">
-    <a-form @submit="handleSubmit" :form="form">
-      <a-col :md="24" :sm="24">
-      <a-form-item label="Note" :labelCol="{ span: 7 }" :wrapperCol="{ span: 15 }">
-        <a-input v-decorator="['note',{rules: [{ required: true, message: 'Please input your note!' }]}]"/>
-      </a-form-item>
-      </a-col>
-      <a-col :md="24" :sm="24">
-      <a-form-item label="Gender" :labelCol="{ span: 7 }" :wrapperCol="{ span: 15 }">
-        <a-select v-decorator="['gender',{rules: [{ required: true, message: 'Please select your gender!' }]}]" placeholder="Select a option and change input text above" @change="this.handleSelectChange">
-          <a-select-option value="male">male</a-select-option>
-          <a-select-option value="female">female</a-select-option>
-        </a-select>
-      </a-form-item>
-      </a-col>
-      <a-col :md="24" :sm="24">
-      <a-form-item label="Gender" :labelCol="{ span: 7 }" :wrapperCol="{ span: 15 }">
-        <a-cascader :options="areaOptions" @change="onChange" :showSearch="{filter}" placeholder="Please select" />
-      </a-form-item>
-      </a-col>
-      <a-form-item :wrapperCol="{ span: 12, offset: 5 }">
-        <a-col :md="24" :sm="24">
-        <a-button type="primary" htmlType="submit">Submit</a-button>
-        </a-col>
-      </a-form-item>
-    </a-form>
-  </a-card>
+  <div>
+    <vue-ueditor-wrap v-model="msg" :config="myConfig"  ></vue-ueditor-wrap>
+  </div>
 </template>
 
 <script>
-  import { getAction } from '@/api/manage'
+  import VueUeditorWrap from '@/components/vue-ueditor-wrap.vue';
+
   export default {
+    components: {
+      VueUeditorWrap
+    },
     data () {
       return {
-        formLayout: 'horizontal',
-        form: this.$form.createForm(this),
-        areaOptions:[]
-      }
+        msg: '',
+        myConfig: {
+          autoHeightEnabled: false, // 编辑器不自动被内容撑高
+          initialFrameHeight: 200, // 初始容器高度
+          initialFrameWidth: '100%',   // 初始容器宽度
+          serverUrl: 'http://35.201.165.105:8000/controller.php' // 上传文件接口（这个地址是我为了方便各位体验文件上传功能搭建的临时接口，请勿在生产环境使用！！！）
+        }
+      };
     },
     methods: {
-      handleSubmit (e) {
-        e.preventDefault()
-        this.form.validateFields((err, values) => {
-          if (!err) {
-            console.log('Received values of form: ', values)
-          }
-        })
-      },
-      handleSelectChange (value) {
-        console.log(value)
-        this.form.setFieldsValue({
-          note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
-        })
-      },
-      onChange(value, selectedOptions) {
-        console.log(value, selectedOptions);
-        console.log("32232");
-      },
-      filter(inputValue, path) {
-        return (path.some(option => (option.label).toLowerCase().indexOf(inputValue.toLowerCase()) > -1));
-      },
-    },
-    created (){
-      getAction('/api/area').then((res) => {
-          console.log("------------")
-          console.log(res)
-          this.areaOptions = res;
-      })
+
     }
-  }
+  };
 </script>
+
