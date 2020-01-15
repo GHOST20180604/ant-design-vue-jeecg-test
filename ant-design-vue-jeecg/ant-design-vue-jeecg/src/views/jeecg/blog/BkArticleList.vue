@@ -137,11 +137,6 @@
               return parseInt(index) + 1
             }
           },
-          // {
-          //   title:'用户ID',
-          //   align:"center",
-          //   dataIndex: 'userId'
-          // },
           {
             title: '标题',
             align: 'center',
@@ -160,11 +155,7 @@
               return !text?"":(text.length>5?text.substr(0,5) + '...':text);
             }
           },
-          // {
-          //   title:'内容',
-          //   align:"center",
-          //   dataIndex: 'content'
-          // },
+
           {
             title:'状态',
             align:"center",
@@ -246,12 +237,6 @@
               return !text ? '' : (text.length > 10 ? text.substr(0, 10) : text)
             }
           },
-          // {
-          //   title:'分类ID',
-          //   align:"center",
-          //   dataIndex: 'categoryId'
-          // },
-
           {
             title: '操作',
             dataIndex: 'action',

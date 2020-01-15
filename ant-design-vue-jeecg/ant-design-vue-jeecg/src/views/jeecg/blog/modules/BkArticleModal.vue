@@ -10,54 +10,35 @@
     <a-spin :spinning="confirmLoading">
       <a-form :form="form">
 
-        <!--<a-form-item label="用户ID" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<a-input v-decorator="[ 'userId', validatorRules.userId]" placeholder="请输入用户ID"></a-input>-->
-        <!--</a-form-item>-->
-        <a-form-item label="标题" :labelCol="labelCol" :wrapperCol="wrapperCol">
+        <a-form-item :wrapperCol="{xs: { span: 24 },sm: { span: 24 }}">
           <a-input v-decorator="[ 'title', validatorRules.title]" placeholder="请输入标题"></a-input>
         </a-form-item>
-        <a-form-item label="内容" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-textarea v-decorator="['content']" rows="4" placeholder="请输入内容"/>
-        </a-form-item>
-        <a-form-item label="分类" :labelCol="labelCol" :wrapperCol="wrapperCol">
+        <!--<a-form-item label="内容" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
+        <!--<a-textarea v-decorator="['content']" rows="4" placeholder="请输入内容"/>-->
+        <!--</a-form-item>-->
+        <vue-ueditor-wrap ref="ueditor" v-decorator="['content',validatorRules.content]" :config="myConfig"></vue-ueditor-wrap>
 
-          <a-select v-decorator="[ 'categoryId', validatorRules.categoryId]"
-                    optionFilterProp="children"
-                    style="width: 100%">
-            <a-select-option v-for="(catagory,catagoryIndex) in catagoryList" :key="catagoryIndex.toString()"
-                             :value="catagory.id">
+        <a-form-item label="文章分类" style="margin-top: 30px;" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-select v-decorator="[ 'categoryId', validatorRules.categoryId]" optionFilterProp="children" style="width: 100%">
+            <a-select-option v-for="(catagory,catagoryIndex) in catagoryList" :key="catagoryIndex.toString()" :value="catagory.id">
               {{ catagory.name }}
             </a-select-option>
           </a-select>
         </a-form-item>
-        <!--<a-form-item label="状态;0:草稿;1:已发布;2:已删除;" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<a-input v-decorator="[ 'status', validatorRules.status]" placeholder="请输入状态;0:草稿;1:已发布;2:已删除;"></a-input>-->
-        <!--</a-form-item>-->
-        <a-form-item label="获赞次数" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input-number v-decorator="[ 'praiseNum', validatorRules.praiseNum]" placeholder="请输入获赞次数"
-                          style="width: 100%"/>
+
+        <a-form-item label="可否评论" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-radio-group v-decorator="[ 'canComment',validatorRules.canComment]">
+            <a-radio :value="1">是</a-radio>
+            <a-radio :value="0">否</a-radio>
+          </a-radio-group>
         </a-form-item>
-        <a-form-item label="是否可评论;0否;1是" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input v-decorator="[ 'canComment', validatorRules.canComment]" placeholder="请输入是否可评论;0否;1是"></a-input>
+        <a-form-item label="是否公开" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-radio-group v-decorator="[ 'isPublic', validatorRules.isPublic]">
+            <a-radio :value="1">是</a-radio>
+            <a-radio :value="0">否</a-radio>
+          </a-radio-group>
         </a-form-item>
-        <a-form-item label="是否公开;0否;1是" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-input v-decorator="[ 'isPublic', validatorRules.isPublic]" placeholder="请输入是否公开;0否;1是"></a-input>
-        </a-form-item>
-        <!--<a-form-item label="创建人" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<a-input v-decorator="[ 'createBy', validatorRules.createBy]" placeholder="请输入创建人"></a-input>-->
-        <!--</a-form-item>-->
-        <!--<a-form-item label="创建时间" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<j-date placeholder="请选择创建时间" v-decorator="[ 'createTime', validatorRules.createTime]" :trigger-change="true" style="width: 100%"/>-->
-        <!--</a-form-item>-->
-        <!--<a-form-item label="变更人" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<a-input v-decorator="[ 'updateBy', validatorRules.updateBy]" placeholder="请输入变更人"></a-input>-->
-        <!--</a-form-item>-->
-        <!--<a-form-item label="变更时间" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<j-date placeholder="请选择变更时间" v-decorator="[ 'updateTime', validatorRules.updateTime]" :trigger-change="true" style="width: 100%"/>-->
-        <!--</a-form-item>-->
-        <!--<a-form-item label="分类ID" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
-        <!--<a-input v-decorator="[ 'categoryId', validatorRules.categoryId]" placeholder="请输入分类ID"></a-input>-->
-        <!--</a-form-item>-->
+
 
       </a-form>
     </a-spin>
@@ -70,27 +51,36 @@
   import pick from 'lodash.pick'
   import JDate from '@/components/jeecg/JDate'
   import { queryAllCategory } from '@/api/api'
+  import VueUeditorWrap from '@/components/vue-ueditor-wrap.vue'
 
   export default {
     name: 'BkArticleModal',
     components: {
-      JDate
+      JDate,
+      VueUeditorWrap
     },
     data() {
       return {
         form: this.$form.createForm(this),
         title: '操作',
         catagoryList: [],
+        content: '',
+        myConfig: {
+          autoHeightEnabled: false, // 编辑器不自动被内容撑高
+          initialFrameHeight: 200, // 初始容器高度
+          initialFrameWidth: '100%',   // 初始容器宽度
+          serverUrl: 'http://35.201.165.105:8000/controller.php' // 上传文件接口（这个地址是我为了方便各位体验文件上传功能搭建的临时接口，请勿在生产环境使用！！！）
+        },
         width: 800,
         visible: false,
         model: {},
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 5 }
+          sm: { span: 3 }
         },
         wrapperCol: {
           xs: { span: 24 },
-          sm: { span: 16 }
+          sm: { span: 18 }
         },
 
         confirmLoading: false,
@@ -106,12 +96,12 @@
           praiseNum: {},
           canComment: {
             rules: [{
-              required: true, message: '是否可评论?'
+              required: true, message: '请选择评论!'
             }]
           },
           isPublic: {
             rules: [{
-              required: true, message: '请选择分类!'
+              required: true, message: '请选择公开!'
             }]
           },
           createBy: {},
@@ -128,7 +118,6 @@
           add: '/blog/bkArticle/add',
           edit: '/blog/bkArticle/edit'
         }
-
       }
     },
     created() {
@@ -143,7 +132,7 @@
         this.model = Object.assign({}, record)
         this.visible = true
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.model, 'userId', 'title', 'content', 'status', 'praiseNum', 'canComment', 'isPublic', 'createBy', 'createTime', 'updateBy', 'updateTime', 'categoryId'))
+          this.form.setFieldsValue(pick(this.model, 'title', 'content', 'status', 'praiseNum', 'canComment', 'isPublic'))
         })
       },
       close() {
@@ -152,6 +141,8 @@
       },
       handleOk() {
         const that = this
+        //将富文本内容拿出来
+        this.content = this.$refs.ueditor.editor.getContent()
         // 触发表单验证
         this.form.validateFields((err, values) => {
           if (!err) {
@@ -164,6 +155,9 @@
             } else {
               httpurl += this.url.edit
               method = 'put'
+            }
+            if (this.content) {
+              values.content = this.content
             }
             debugger
             let formData = Object.assign(this.model, values)
