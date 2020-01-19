@@ -1,26 +1,24 @@
 <template>
-  <a-modal
-    :title="title"
-    :width="width"
-    :visible="visible"
-    :confirmLoading="confirmLoading"
-    @ok="handleOk"
-    @cancel="handleCancel"
-    cancelText="关闭">
+  <div v-if="visible">
     <a-spin :spinning="confirmLoading">
+      <h2 style="margin-left: 10px;"> {{title}}</h2>
       <a-form :form="form">
-
         <a-form-item :wrapperCol="{xs: { span: 24 },sm: { span: 24 }}">
           <a-input v-decorator="[ 'title', validatorRules.title]" placeholder="请输入标题"></a-input>
         </a-form-item>
         <!--<a-form-item label="内容" :labelCol="labelCol" :wrapperCol="wrapperCol">-->
         <!--<a-textarea v-decorator="['content']" rows="4" placeholder="请输入内容"/>-->
         <!--</a-form-item>-->
-        <vue-ueditor-wrap ref="ueditor" v-decorator="['content',validatorRules.content]" :config="myConfig"></vue-ueditor-wrap>
+        <vue-ueditor-wrap ref="ueditor" v-decorator="['content',validatorRules.content]"
+                          v-model="content"  :config="myConfig"></vue-ueditor-wrap>
 
         <a-form-item label="文章分类" style="margin-top: 30px;" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <a-select v-decorator="[ 'categoryId', validatorRules.categoryId]" optionFilterProp="children" style="width: 100%">
-            <a-select-option v-for="(catagory,catagoryIndex) in catagoryList" :key="catagoryIndex.toString()" :value="catagory.id">
+
+          <a-select v-decorator="[ 'categoryId', validatorRules.categoryId]" optionFilterProp="children"
+                    style="width: 100%">
+            <a-select-option value="">请选择</a-select-option>
+            <a-select-option v-for="(catagory,catagoryIndex) in catagoryList" :key="catagoryIndex"
+                             :value="catagory.id">
               {{ catagory.name }}
             </a-select-option>
           </a-select>
@@ -28,21 +26,25 @@
 
         <a-form-item label="可否评论" :labelCol="labelCol" :wrapperCol="wrapperCol">
           <a-radio-group v-decorator="[ 'canComment',validatorRules.canComment]">
-            <a-radio :value="1">是</a-radio>
-            <a-radio :value="0">否</a-radio>
+            <a-radio value="1">是</a-radio>
+            <a-radio value="0">否</a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="是否公开" :labelCol="labelCol" :wrapperCol="wrapperCol">
           <a-radio-group v-decorator="[ 'isPublic', validatorRules.isPublic]">
-            <a-radio :value="1">是</a-radio>
-            <a-radio :value="0">否</a-radio>
+            <a-radio value="1">是</a-radio>
+            <a-radio value="0">否</a-radio>
           </a-radio-group>
         </a-form-item>
-
-
       </a-form>
+      <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
+          <a-button type="primary" style="margin-left: 8px" @click="handleOk('1')" icon="save">发布博客</a-button>
+          <a-button type="primary" style="margin-left: 8px" @click="handleOk('0')" icon="save">保存草稿</a-button>
+          <a-button type="primary" @click="handleCancel" icon="reload" style="margin-left: 8px">取消</a-button>
+          <a-button type="primary" @click="getSomeDate" icon="reload" style="margin-left: 8px">获取当前页面数据</a-button>
+        </span>
     </a-spin>
-  </a-modal>
+  </div>
 </template>
 
 <script>
@@ -76,7 +78,7 @@
         model: {},
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 3 }
+          sm: { span: 2 }
         },
         wrapperCol: {
           xs: { span: 24 },
@@ -127,22 +129,34 @@
         this.edit({})
       },
       edit(record) {
+        debugger
         this.form.resetFields()
         this.findAllCategory()
         this.model = Object.assign({}, record)
+        if (!this.model.isPublic) {
+          this.model.isPublic = '1'
+          this.model.canComment = '1'
+          this.content = ''
+        }else{
+          this.content = this.model.content;
+        }
         this.visible = true
+
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.model, 'title', 'content', 'status', 'praiseNum', 'canComment', 'isPublic'))
+          this.form.setFieldsValue(pick(this.model, 'title', 'content', 'status', 'praiseNum', 'canComment', 'isPublic','categoryId'))
         })
       },
       close() {
         this.$emit('close')
         this.visible = false
+        // this.$parent.showAddOrUpdate = false
+        this.$emit('showList')
       },
-      handleOk() {
+      handleOk(status) {
         const that = this
         //将富文本内容拿出来
-        this.content = this.$refs.ueditor.editor.getContent()
+        debugger
+        // this.content = this.$refs.ueditor.editor.getContent()
         // 触发表单验证
         this.form.validateFields((err, values) => {
           if (!err) {
@@ -159,7 +173,7 @@
             if (this.content) {
               values.content = this.content
             }
-            debugger
+            values.status = status
             let formData = Object.assign(this.model, values)
             console.log('表单提交数据', formData)
             httpAction(httpurl, formData, method).then((res) => {
@@ -180,6 +194,16 @@
       handleCancel() {
         this.close()
       },
+      getSomeDate() {
+        // debugger
+        // let aaa = this.model
+        // var bbb = this.$parent.showAddOrUpdate ;
+        // var ccc = this.$parent ;
+        // console.log(
+        //   aaa
+        // )
+      },
+
       popupCallback(row) {
         this.form.setFieldsValue(pick(row, 'userId', 'title', 'content', 'status', 'praiseNum', 'canComment', 'isPublic', 'createBy', 'createTime', 'updateBy', 'updateTime', 'categoryId'))
       },
@@ -192,7 +216,6 @@
           }
         })
       }
-
     }
   }
 </script>
